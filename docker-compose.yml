@@ -4,19 +4,6 @@ db:
     - "5432"
 redis:
   image: redis
-web:
-  image: eeacms/bise.catalogue
-  environment: 
-    - RAILS_ENV=production
-  command: bundle exec rails server -p 3000 -b '0.0.0.0'
-  volumes:
-    - .:/app
-  ports:
-    - "3000:3000"
-  links:
-    - db
-    - elasticsearch
-    - redis
 elasticsearch:
   build: elasticsearch
   command: 
@@ -30,8 +17,21 @@ elasticsearch:
     - Des.http.max_content_length=100mb
   ports:
     - "9200:9200"
+web:
+  build: bise-catalogue
+  environment:
+    - RAILS_ENV=production
+  command: bundle exec rails server -p 3000 -b '0.0.0.0'
+  volumes:
+    - .:/app
+  ports:
+    - "3000:3000"
+  links:
+    - db
+    - elasticsearch
+    - redis
 worker:
-  image: eeacms/bise.catalogue
+  build: bise-catalogue
   environment:
     - RAILS_ENV=production
   command: bundle exec sidekiq -d -L log/sidekiq.log -q default -e production
