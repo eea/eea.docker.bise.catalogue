@@ -18,12 +18,15 @@ elasticsearch:
   ports:
     - "9200:9200"
 web:
-  build: bise-catalogue
+  image: eeacms/bise.catalogue:latest
   environment:
     - RAILS_ENV=production
   command: bundle exec rails server -p 3000 -b '0.0.0.0'
   volumes:
-    - .:/app
+    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
+    - ./bise-catalogue/config/database.yml:/app/config/database.yml
+    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
   ports:
     - "3000:3000"
   links:
@@ -31,10 +34,15 @@ web:
     - elasticsearch
     - redis
 worker:
-  build: bise-catalogue
+  image: eeacms/bise.catalogue:latest
   environment:
     - RAILS_ENV=production
   command: bundle exec sidekiq -d -L log/sidekiq.log -q default -e production
+  volumes:
+    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
+    - ./bise-catalogue/config/database.yml:/app/config/database.yml
+    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
   links:
     - db
     - redis
