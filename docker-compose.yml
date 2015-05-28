@@ -27,6 +27,7 @@ web:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
+    - ./shared/uploads:/app/public/uploads
   ports:
     - "3000:3000"
   links:
@@ -43,6 +44,7 @@ worker:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
+    - ./shared/uploads:/app/public/uploads
   links:
     - db
     - redis
