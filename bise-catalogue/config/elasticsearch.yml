@@ -1,2 +1,4 @@
 production:
     url: http://elasticsearch:9200
+development:
+    url: http://elasticsearch:9200

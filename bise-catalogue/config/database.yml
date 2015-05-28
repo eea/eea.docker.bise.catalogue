@@ -6,3 +6,10 @@ production: &default
   host: db 
   username: postgres
   password:
+
+development: &default
+  adapter: postgresql
+  database: catalogue_development
+  host: db
+  username: postgres
+  password:
