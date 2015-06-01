@@ -52,7 +52,6 @@ web:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./production.rb:/app/config/environments/production.rb
   volumes_from:
     - data
   ports:
