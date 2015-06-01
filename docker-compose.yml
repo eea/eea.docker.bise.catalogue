@@ -6,21 +6,42 @@ db:
     - data
 redis:
   image: redis
-elasticsearch:
-  build: elasticsearch
-  command: 
-    - elasticsearch
-    - Des.cluster.name="Catalogue Cluster"
-    - Des.node.name="Catalogue Master Node"
-    - Des.node.master=true
-    - Des.index.number_of_shards=5
-    - Des.index.number_of_replicas=1
-    - Des.transport.tcp.compress=true
-    - Des.http.max_content_length=100mb
-  ports:
-    - "9200:9200"
-  volumes_from:
-    - data
+# ElasticSearch config
+esmaster:
+    image: eeacms/elastic:bise
+    restart: always
+    command: # No data, no http, no river, can be master
+      - elasticsearch
+      - Des.node.data=false
+      - Des.http.enabled=false
+      - Des.node.master=true
+      - Des.node.river=_none_
+esclient:
+    image: eeacms/elastic:bise
+    restart: always
+    command: # No data, http, no river, can't be master
+      - elasticsearch
+      - -Des.node.data=false
+      - -Des.http.enabled=true
+      - -Des.node.master=false
+      - -Des.node.river=_none_
+      - -Des.transport.tcp.compress=true
+      - -Des.http.max_content_length=100mb
+    ports:
+      - 9200:9200
+esworker1:
+    image: eeacms/elastic:bise
+    restart: always
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - Des.node.data=true
+        - Des.http.enabled=false
+        - Des.node.master=false
+    volumes_from:
+        - data
+    environment:
+        - ES_HEAP_SIZE=2g
+# Ruby on Rails config
 web:
   image: eeacms/bise.catalogue:assets
   environment:
@@ -38,7 +59,7 @@ web:
     - "3000:3000"
   links:
     - db
-    - elasticsearch
+    - esclient
     - redis
 worker:
   image: eeacms/bise.catalogue:latest
@@ -54,7 +75,8 @@ worker:
     - data
   links:
     - db
+    - esclient
     - redis
-
+# Data volume container
 data:
   build: data
