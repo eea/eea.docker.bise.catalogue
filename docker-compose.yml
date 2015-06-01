@@ -2,6 +2,8 @@ db:
   image: postgres:8.4
   ports:
     - "5432"
+  volumes_from:
+    - data
 redis:
   image: redis
 elasticsearch:
@@ -17,8 +19,10 @@ elasticsearch:
     - Des.http.max_content_length=100mb
   ports:
     - "9200:9200"
+  volumes_from:
+    - data
 web:
-  image: eeacms/bise.catalogue:latest
+  image: eeacms/bise.catalogue:assets
   environment:
     - RAILS_ENV=production
   command: bundle exec rails server -p 3000 -b '0.0.0.0'
@@ -27,7 +31,9 @@ web:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./shared/uploads:/app/public/uploads
+    - ./production.rb:/app/config/environments/production.rb
+  volumes_from:
+    - data
   ports:
     - "3000:3000"
   links:
@@ -44,7 +50,11 @@ worker:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./shared/uploads:/app/public/uploads
+  volumes_from:
+    - data
   links:
     - db
     - redis
+
+data:
+  build: data
