@@ -21,7 +21,7 @@ docker run --rm --volumes-from=$DATA_ID busybox sh -c 'echo "host all all 0.0.0.
 # Copy Elasticsearch files to the data container
 docker run --rm -v `pwd`/elasticsearch:/host --volumes-from=$DATA_ID busybox cp -r /host/data /usr/share/elasticsearch
 # Fix state
-docker run --rm --volumes-from=$DATA_ID busyboxrm "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/_state/global-0.st"
+docker run --rm --volumes-from=$DATA_ID busybox rm "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/_state/global-0.st"
 
 # Copy uploads
 docker run --rm -v `pwd`/uploads:/host --volumes-from=$DATA_ID busybox cp -r /host/document /app/public/uploads
