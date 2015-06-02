@@ -6,6 +6,9 @@ db:
     - data
 redis:
   image: redis
+postfix:
+  image: eeacms/postfix:eionet
+  env_file: .secret
 # ElasticSearch config
 esmaster:
     image: eeacms/elastic:bise
@@ -41,6 +44,22 @@ esworker1:
         - data
     environment:
         - ES_HEAP_SIZE=2g
+# Alternative single container setup:
+#esclient:
+#    image: eeacms/elastic:bise
+#    restart: always
+#    command: # Single node
+#      - elasticsearch
+#      - -Des.node.data=true
+#      - -Des.http.enabled=true
+#      - -Des.node.master=true
+#      - -Des.node.river=_none_
+#      - -Des.transport.tcp.compress=true
+#      - -Des.http.max_content_length=100mb
+#    volumes_from:
+#      - data
+#    ports:
+#      - 9200:9200
 # Ruby on Rails config
 web:
   image: eeacms/bise.catalogue:assets
@@ -52,6 +71,8 @@ web:
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
+    - ./bise-catalogue/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    #- ./production.rb:/app/config/environments/production.rb
   volumes_from:
     - data
   ports:
@@ -60,8 +81,10 @@ web:
     - db
     - esclient
     - redis
+    - postfix
 worker:
   image: eeacms/bise.catalogue:latest
+  restart: on-failure:1
   environment:
     - RAILS_ENV=production
   command: bundle exec sidekiq -d -L log/sidekiq.log -q default -e production

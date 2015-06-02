@@ -21,6 +21,8 @@ To get admin rights, start the instance, login with eionet, then:
 Copy `bise-catalogue/config/ldap.example.yml` into `bise-catalogue/config/ldap.yml` and modify it
 with the LDAP admin credentials for EIONET.
 
+Edit a `.secret` file for Postfix SMTP authentication, see: http://github.com/eea/eea.docker.postfix for more details.
+
 ## Start
 
     docker-compose up

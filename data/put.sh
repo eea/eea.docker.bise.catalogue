@@ -16,12 +16,11 @@ docker run --rm --volumes-from=$DATA_ID busybox chown 999:999 /var/lib/postgresq
 # Fix access
 docker run --rm --volumes-from=$DATA_ID busybox sed -ri "s/^#(listen_addresses\s*=\s*)\S+/\1'*'/" /var/lib/postgresql/data/postgresql.conf
 docker run --rm --volumes-from=$DATA_ID busybox sh -c 'echo "host all all 0.0.0.0/0 trust" >> /var/lib/postgresql/data/pg_hba.conf'
-# Fix
 
 # Copy Elasticsearch files to the data container
 docker run --rm -v `pwd`/elasticsearch:/host --volumes-from=$DATA_ID busybox cp -r /host/data /usr/share/elasticsearch
-# Fix state
-docker run --rm --volumes-from=$DATA_ID busybox rm "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/_state/global-0.st"
+# Fix state. Not needed if using the same ES version (1.3)
+#docker run --rm --volumes-from=$DATA_ID busybox sh -c 'find "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/" -name "state-*" -not -name "state-*.st" -exec rm \{\} \;'
 
 # Copy uploads
 docker run --rm -v `pwd`/uploads:/host --volumes-from=$DATA_ID busybox cp -r /host/document /app/public/uploads
