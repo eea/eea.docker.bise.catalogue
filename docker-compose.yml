@@ -62,7 +62,8 @@ esworker1:
 #      - 9200:9200
 # Ruby on Rails config
 web:
-  image: eeacms/bise.catalogue:assets
+  image: eeacms/bise.catalogue:v1.2
+  restart: always
   environment:
     - RAILS_ENV=production
   command: bundle exec rails server -p 3000 -b '0.0.0.0'
@@ -83,8 +84,8 @@ web:
     - redis
     - postfix
 worker:
-  image: eeacms/bise.catalogue:latest
-  restart: on-failure:1
+  image: eeacms/bise.catalogue:v1.2
+  restart: always
   environment:
     - RAILS_ENV=production
   command: bundle exec sidekiq -d -L log/sidekiq.log -q default -e production
