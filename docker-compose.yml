@@ -62,7 +62,7 @@ esworker1:
 #      - 9200:9200
 # Ruby on Rails config
 web:
-  image: eeacms/bise.catalogue:v1.2
+  image: eeacms/bise.catalogue:latest
   restart: always
   environment:
     - RAILS_ENV=production
@@ -84,7 +84,7 @@ web:
     - redis
     - postfix
 worker:
-  image: eeacms/bise.catalogue:v1.2
+  image: eeacms/bise.catalogue:latest
   restart: always
   environment:
     - RAILS_ENV=production

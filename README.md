@@ -4,14 +4,14 @@ BISE Catalogue docker orchestration
 
 ## Development instance
 
-    docker-compose -f docker-compose.dev.yml -p bisedev build
-    docker-compose -f docker-compose.dev.yml -p bisedev run web bundle exec rake db:create
-    docker-compose -f docker-compose.dev.yml -p bisedev run web bundle exec rake db:migrate
-    docker-compose -f docker-compose.dev.yml -p bisedev run web bundle exec rake db:seed
+    docker-compose -f docker-compose.dev.yml build
+    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create
+    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:migrate
+    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:seed
 
 To get admin rights, start the instance, login with eionet, then:
 
-   docker-compose -f docker-compose.dev.yml -p bisedev run db psql -U postgres -h db
+   docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
    \c catalogue_development;
    update users set role_admin='t';
    CTRL+D

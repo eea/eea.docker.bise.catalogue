@@ -2,49 +2,72 @@ db:
   image: postgres:8.4
   ports:
     - "5432"
+  volumes_from:
+    - data
 redis:
   image: redis
-elasticsearch:
-  build: elasticsearch
-  command: 
-    - elasticsearch
-    - Des.cluster.name="Catalogue Cluster"
-    - Des.node.name="Catalogue Master Node"
-    - Des.node.master=true
-    - Des.index.number_of_shards=5
-    - Des.index.number_of_replicas=1
-    - Des.transport.tcp.compress=true
-    - Des.http.max_content_length=100mb
-  ports:
-    - "9200:9200"
+#postfix:
+#  image: eeacms/postfix:eionet
+#  env_file: .secret
+# ElasticSearch config
+esclient:
+    image: eeacms/elastic:bise
+    restart: always
+    command: # Single node
+      - elasticsearch
+      - -Des.node.data=true
+      - -Des.http.enabled=true
+      - -Des.node.master=true
+      - -Des.node.river=_none_
+      - -Des.transport.tcp.compress=true
+      - -Des.http.max_content_length=100mb
+    volumes_from:
+      - data
+    ports:
+      - 9200:9200
+# Ruby on Rails config
 web:
-  image: eeacms/bise.catalogue:latest
+  image: eeacms/bise.catalogue:lastest
+  restart: always
   environment:
     - RAILS_ENV=development
   command: bundle exec rails server -p 3000 -b '0.0.0.0'
   volumes:
+    - ./src/bise.catalogue/app:/app/app
+    - ./src/bise.catalogue/db:/app/db
     - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./shared/uploads:/app/public/uploads
+    - ./bise-catalogue/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+  volumes_from:
+    - data
   ports:
-    - "3000:3000"
+    - "3001:3000"
   links:
     - db
-    - elasticsearch
+    - esclient
     - redis
+#    - postfix
 worker:
-  image: eeacms/bise.catalogue:latest
+  image: eeacms/bise.catalogue:lastest
+  restart: always
   environment:
-    - RAILS_ENV=development
-  command: bundle exec sidekiq -d -L log/sidekiq.log -q default -e production
+    - RAILS_ENV=production
+  command: bundle exec sidekiq -L log/sidekiq.log -q default -e development
   volumes:
+    - ./src/bise.catalogue/app:/app/app
+    - ./src/bise.catalogue/db:/app/db
     - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
     - ./bise-catalogue/config/database.yml:/app/config/database.yml
     - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
     - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./shared/uploads:/app/public/uploads
+  volumes_from:
+    - data
   links:
     - db
+    - esclient
     - redis
+# Data volume container
+data:
+  build: data
