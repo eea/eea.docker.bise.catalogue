@@ -1,13 +1,16 @@
 db:
   image: postgres:8.4
+  restart: always
   ports:
     - "5432"
   volumes_from:
     - data
 redis:
   image: redis
+  restart: always
 postfix:
   image: eeacms/postfix:eionet
+  restart: always
   env_file: .secret
 # ElasticSearch config
 esmaster:
