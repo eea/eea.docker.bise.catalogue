@@ -41,9 +41,29 @@ esworker1:
         - Des.http.enabled=false
         - Des.node.master=false
     volumes_from:
-        - data
+        - dataw1
     environment:
         - ES_HEAP_SIZE=2g
+dataw1:
+    image: busybox
+    volumes:
+        - /usr/share/elasticsearch/data
+esworker2:
+    image: eeacms/elastic:bise
+    restart: always
+    command: # Data, no http, river, can't be master
+        - elasticsearch
+        - -Des.node.data=true
+        - -Des.http.enabled=false
+        - -Des.node.master=false
+    volumes_from:
+        - dataw2
+    environment:
+        - ES_HEAP_SIZE=2g
+dataw2:
+    image: busybox
+    volumes:
+        - /usr/share/elasticsearch/data
 # Alternative single container setup:
 #esclient:
 #    image: eeacms/elastic:bise
