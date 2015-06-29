@@ -99,8 +99,6 @@ web:
     #- ./production.rb:/app/config/environments/production.rb
   volumes_from:
     - data
-  ports:
-    - "3000:3000"
   links:
     - db
     - esclient
@@ -123,6 +121,17 @@ worker:
     - db
     - esclient
     - redis
+# NGINX frontend
+frontend:
+    build: frontend
+    restart: always
+    links:
+        - web
+    volumes_from:
+        - web
+        - data
+    ports:
+        - 80:80
 # Data volume container
 data:
   build: data
