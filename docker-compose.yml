@@ -22,6 +22,7 @@ esmaster:
       - -Des.http.enabled=false
       - -Des.node.master=true
       - -Des.node.river=_none_
+      - -Des.discovery.zen.ping.multicast.enabled=false
 esclient:
     image: eeacms/elastic:bise
     restart: always
@@ -33,6 +34,10 @@ esclient:
       - -Des.node.river=_none_
       - -Des.transport.tcp.compress=true
       - -Des.http.max_content_length=100mb
+      - -Des.discovery.zen.ping.multicast.enabled=false
+      - -Des.discovery.zen.ping.unicast.hosts=esmaster
+    links:
+      - esmaster
     ports:
       - 9200:9200
 esworker1:
@@ -43,6 +48,10 @@ esworker1:
       - -Des.node.data=true
       - -Des.http.enabled=false
       - -Des.node.master=false
+      - -Des.discovery.zen.ping.multicast.enabled=false
+      - -Des.discovery.zen.ping.unicast.hosts=esmaster
+    links:
+      - esmaster
     volumes_from:
       - dataw1
     environment:
@@ -59,6 +68,10 @@ esworker2:
       - -Des.node.data=true
       - -Des.http.enabled=false
       - -Des.node.master=false
+      - -Des.discovery.zen.ping.multicast.enabled=false
+      - -Des.discovery.zen.ping.unicast.hosts=esmaster
+    links:
+      - esmaster
     volumes_from:
       - dataw2
     environment:
