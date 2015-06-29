@@ -18,10 +18,10 @@ esmaster:
     restart: always
     command: # No data, no http, no river, can be master
       - elasticsearch
-      - Des.node.data=false
-      - Des.http.enabled=false
-      - Des.node.master=true
-      - Des.node.river=_none_
+      - -Des.node.data=false
+      - -Des.http.enabled=false
+      - -Des.node.master=true
+      - -Des.node.river=_none_
 esclient:
     image: eeacms/elastic:bise
     restart: always
@@ -39,14 +39,14 @@ esworker1:
     image: eeacms/elastic:bise
     restart: always
     command: # Data, no http, river, can't be master
-        - elasticsearch
-        - Des.node.data=true
-        - Des.http.enabled=false
-        - Des.node.master=false
+      - elasticsearch
+      - -Des.node.data=true
+      - -Des.http.enabled=false
+      - -Des.node.master=false
     volumes_from:
-        - dataw1
+      - dataw1
     environment:
-        - ES_HEAP_SIZE=2g
+      - ES_HEAP_SIZE=2g
 dataw1:
     image: busybox
     volumes:
@@ -55,14 +55,14 @@ esworker2:
     image: eeacms/elastic:bise
     restart: always
     command: # Data, no http, river, can't be master
-        - elasticsearch
-        - -Des.node.data=true
-        - -Des.http.enabled=false
-        - -Des.node.master=false
+      - elasticsearch
+      - -Des.node.data=true
+      - -Des.http.enabled=false
+      - -Des.node.master=false
     volumes_from:
-        - dataw2
+      - dataw2
     environment:
-        - ES_HEAP_SIZE=2g
+      - ES_HEAP_SIZE=2g
 dataw2:
     image: busybox
     volumes:
