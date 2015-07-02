@@ -5,9 +5,7 @@ BISE Catalogue docker orchestration
 ## Development instance
 
     docker-compose -f docker-compose.dev.yml build
-    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create
-    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:migrate
-    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:seed
+    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create db:migrate db:seed
 
 To get admin rights, start the instance, login with eionet, then:
 

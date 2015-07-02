@@ -28,17 +28,11 @@ web:
   environment:
     - RAILS_ENV=development
   volumes:
-    - ./src/bise.catalogue/app:/app/app
-    - ./src/bise.catalogue/db:/app/db
-    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
-    - ./bise-catalogue/config/database.yml:/app/config/database.yml
-    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./bise-catalogue/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    - ./src/bise.catalogue:/app
   volumes_from:
     - data
   ports:
-    - "3001:3000"
+    - "3000:3000"
   links:
     - db
     - esclient
@@ -50,12 +44,7 @@ worker:
     - RAILS_ENV=development
   command: bundle exec sidekiq -L log/sidekiq.log -q default -e development
   volumes:
-    - ./src/bise.catalogue/app:/app/app
-    - ./src/bise.catalogue/db:/app/db
-    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
-    - ./bise-catalogue/config/database.yml:/app/config/database.yml
-    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
+    - ./src/bise.catalogue:/app
   volumes_from:
     - data
   links:
