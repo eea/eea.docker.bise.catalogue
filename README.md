@@ -1,6 +1,6 @@
 # eea.docker.bise.catalogue
 
-BISE Catalogue docker orchestration
+[BISE Catalogue](https://github.com/eea/bise.catalogue) docker orchestration
 
 ## Development instance
 
@@ -26,3 +26,58 @@ Edit a `.secret` file for Postfix SMTP authentication, see: http://github.com/ee
 ## Start
 
     docker-compose up
+    
+Check the web application is running on localhost:80 (default port, can be changed in docker-compose-dev.yml file).
+
+### Production deployment 
+
+### Initial setup
+**Step 1**: Clone the repo. Setup secrets
+
+    git clone https://github.com/eea/eea.docker.bise.catalogue.git
+    cd eea.docker.bise.catalogue
+    cp bise-catalogue/config/ldap.example.yml bise-catalogue/config/ldap.yml
+    # edit ldap.yml, add authentication and ldap server
+    touch .secret
+    # edit .secret, add authentication to the email server, see https://github.com/eea/eea.docker.postfix/blob/master/.secret.example for more details
+
+**Step 2**: Start the containers
+
+(we need to start them once so the data volumes are created)
+
+     docker-compose up -d
+
+**Step 3a**: Initialise database (for new setup only)
+
+     docker exec -it eeadockerbisecatalogue_web_1 bundle exec rake db:create db:migrate
+
+**Step 3b**: Migrate existing database (for migrating data from an existing installation)
+
+(we are using two scripts to fetch data from an existing instance and another one to push it into the data containers)
+
+     docker-compose stop
+     cd data
+     ./fetch.sh
+     for DATA_ID in eeadockerbisecatalogue_data_1 eeadockerbisecatalogue_dataw1_1 eeadockerbisecatalogue_dataw2_1; do
+     ./put.sh
+     done
+     cd -
+     docker-compose up -d
+
+**Step 4**: Check installation
+   
+     curl localhost
+
+The Docker service should expose a frontend nginx container on the port 80.
+
+### Code changes / re-deployment
+
+Any changes to the eea/bise.catalogue repository will trigger a new build in Docker Hub: https://registry.hub.docker.com/u/eeacms/bise.catalogue/
+
+To apply them on production, run:
+
+    cd eea.docker.bise.catalogue
+    docker pull eeacms/bise.catalogue:latest
+    docker-compose stop
+    docker-compose up -d
+    docker exec -it eeadockerbisecatalogue_web_1 rake db:migrate
