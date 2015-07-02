@@ -2,6 +2,8 @@
 
 [BISE Catalogue](https://github.com/eea/bise.catalogue) docker orchestration
 
+A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installation/) at least 1.6 and [Docker Compose](https://docs.docker.com/compose/install/) at least 1.2 running on a host with a Linux Kernel 3.16 or newer.
+
 ## Development instance
 
     docker-compose -f docker-compose.dev.yml build
