@@ -23,10 +23,11 @@ esclient:
       - 9200:9200
 # Ruby on Rails config
 web:
-  image: eeacms/bise.catalogue:lastest
+  image: eeacms/bise.catalogue:latest
   restart: always
   environment:
     - RAILS_ENV=development
+  command: rails server -b "0.0.0.0"
   volumes:
     - ./src/bise.catalogue:/app
   volumes_from:
@@ -38,7 +39,7 @@ web:
     - esclient
     - redis
 worker:
-  image: eeacms/bise.catalogue:lastest
+  image: eeacms/bise.catalogue:latest
   restart: always
   environment:
     - RAILS_ENV=development
