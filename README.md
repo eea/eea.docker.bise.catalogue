@@ -11,10 +11,10 @@ A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installati
 
 To get admin rights, start the instance, login with eionet, then:
 
-   docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
-   \c catalogue_development;
-   update users set role_admin='t';
-   CTRL+D
+    docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
+    \c catalogue_development;
+    update users set role_admin='t';
+    CTRL+D
 
 ## Prerequisites
 
@@ -69,6 +69,17 @@ Check the web application is running on localhost:80 (default port, can be chang
 **Step 4**: Check installation
    
      curl localhost
+     
+**Extra**: How to get admin rights
+
+Login using your EIONET ldap account, then issue:
+
+    docker exec -it eeadockerbisecatalogue_db_1 bash
+    su postgres
+    psql
+    \c catalogue_production;
+    update users set role_admin='t';
+    CTRL+D
 
 The Docker service should expose a frontend nginx container on the port 80.
 
