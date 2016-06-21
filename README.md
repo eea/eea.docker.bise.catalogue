@@ -83,6 +83,16 @@ Login using your EIONET ldap account, then issue:
 
 The Docker service should expose a frontend nginx container on the port 80.
 
+### Migrating between servers
+
+**Step0**: Locate where the instrumentation checkout sits on the disk. This should be a git clone of this project. Try /root or /var/local/deploy
+**Step1**: In this location, use the data/make_backups.py script to make a backup of the proper Docker volumes.
+**Step2**: Copy this location to the new server. It will have all necesarry configuration files already setup. Optional: use eeacms/rsync Docker image to perform the copy operation between servers.
+**Step3**: Use 'sh install.sh' script to install the containers on this new server.
+
+If anything goes wrong, use 'sh uninstall.sh' script to remove all containers and start all over again.
+
+
 ### Code changes / re-deployment
 
 Any changes to the eea/bise.catalogue repository will trigger a new build in Docker Hub: https://registry.hub.docker.com/u/eeacms/bise.catalogue/
