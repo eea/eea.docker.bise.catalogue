@@ -9,6 +9,8 @@ if [ "$DATA_ID" == '' ]; then
     exit 1
 fi
 
+echo "Processing $DATA_ID"
+
 # Copy Postgres files to the data container
 docker run --rm -v `pwd`/postgresql:/host --volumes-from=$DATA_ID busybox cp -r /host/data /var/lib/postgresql
 # Fix permissions
