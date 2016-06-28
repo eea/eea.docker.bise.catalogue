@@ -1,4 +1,10 @@
 docker-compose stop
-docker stop $(docker ps -a -q)
-docker rm -f $(docker ps -a -q)
+
+echo "Stopping services"
+docker stop $(docker-compose ps -q)
+
+echo "Removing services"
+docker rm -f $(docker-compose ps -q)
+
+echo "Removing dangling volumes"
 docker volume rm $(docker volume ls -qf dangling=true)
