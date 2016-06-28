@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 
-""" A script to be called on the production catalogue, it makes backups of the volumes
-
-TODO: still needs adjusting to backup paths, so it matches destinations expected by PUT.sh
-"""
-
 import json
 import os
 import shutil
@@ -36,17 +31,12 @@ DESTINATIONS = {
 
 CONTAINERS = [
     'eeadockerbisecatalogue_data_1',
-#   'eeadockerbisecatalogue_dataw1_1',
-#   'eeadockerbisecatalogue_dataw2_1'
+    'eeadockerbisecatalogue_dataw1_1',
+    'eeadockerbisecatalogue_dataw2_1'
 ]
 
 
 def main():
-
-#   for p in DESTINATIONS.values():
-#       if not os.path.exists(p):
-#           print "Creating folder: ", p
-#           os.makedirs(p)
 
     for name in CONTAINERS:
         volumes = get_volumes(name)
@@ -54,7 +44,7 @@ def main():
         print name, "=>"
         print volumes
         for dest, vfs in sorted(volumes.items()):
-            here = DESTINATIONS[dest]
+            here = name + '/' + DESTINATIONS[dest]
             cmd = ['cp', '-Rfp', vfs, here]
             print "Copying ", vfs, " => ", here
             shutil.copytree(vfs, here)
