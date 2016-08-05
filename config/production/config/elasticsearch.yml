@@ -1,0 +1,4 @@
+production:
+    url: http://esclient:9200
+development:
+    url: http://esclient:9200

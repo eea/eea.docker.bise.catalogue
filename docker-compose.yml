@@ -103,11 +103,11 @@ web:
   environment:
     - RAILS_ENV=production
   volumes:
-    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
-    - ./bise-catalogue/config/database.yml:/app/config/database.yml
-    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
-    - ./bise-catalogue/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    - ./config/production/config/ldap.yml:/app/config/ldap.yml
+    - ./config/production/config/database.yml:/app/config/database.yml
+    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/production/config/redis.yml:/app/config/redis.yml
+    - ./config/production/ssmtp.conf:/etc/ssmtp/ssmtp.conf
     #- ./production.rb:/app/config/environments/production.rb
   volumes_from:
     - data
@@ -123,10 +123,10 @@ worker:
     - RAILS_ENV=production
   command: bundle exec sidekiq -L log/sidekiq.log -q default -e production
   volumes:
-    - ./bise-catalogue/config/ldap.yml:/app/config/ldap.yml
-    - ./bise-catalogue/config/database.yml:/app/config/database.yml
-    - ./bise-catalogue/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./bise-catalogue/config/redis.yml:/app/config/redis.yml
+    - ./config/production/config/ldap.yml:/app/config/ldap.yml
+    - ./config/production/config/database.yml:/app/config/database.yml
+    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/production/config/redis.yml:/app/config/redis.yml
   volumes_from:
     - data
   links:

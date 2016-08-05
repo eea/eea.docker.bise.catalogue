@@ -30,6 +30,11 @@ web:
   command: rails server -b "0.0.0.0"
   volumes:
     - ./src/bise.catalogue:/app
+    - ./config/development/config/ldap.yml:/app/config/ldap.yml
+    - ./config/development/config/database.yml:/app/config/database.yml
+    - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/development/config/redis.yml:/app/config/redis.yml
+    - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
   volumes_from:
     - data
   ports:
@@ -46,6 +51,11 @@ worker:
   command: bundle exec sidekiq -L log/sidekiq.log -q default -e development
   volumes:
     - ./src/bise.catalogue:/app
+    - ./config/development/config/ldap.yml:/app/config/ldap.yml
+    - ./config/development/config/database.yml:/app/config/database.yml
+    - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/development/config/redis.yml:/app/config/redis.yml
+    - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
   volumes_from:
     - data
   links:

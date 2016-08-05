@@ -1,0 +1,3 @@
+[submodule "src/bise.catalogue"]
+	path = src/bise.catalogue
+	url = git@github.com:eea/bise.catalogue.git

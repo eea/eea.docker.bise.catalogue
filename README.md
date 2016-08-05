@@ -9,17 +9,18 @@ A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installati
     docker-compose -f docker-compose.dev.yml build
     docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create db:migrate db:seed
 
-To get admin rights, start the instance, login with eionet, then:
+To get admin rights, start the instance, login with Eionet LDAP account, then:
 
     docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
     \c catalogue_development;
     update users set role_admin='t';
     CTRL+D
 
+This updates the catalogue_development database and sets the admin flag for all existing users.
+
 ## Prerequisites
 
-Copy `bise-catalogue/config/ldap.example.yml` into `bise-catalogue/config/ldap.yml` and modify it
-with the LDAP admin credentials for EIONET.
+Copy `bise-catalogue/config/ldap.example.yml` into `bise-catalogue/config/ldap.yml` and modify it with the LDAP admin credentials for EIONET.
 
 **IMPORTANT**: Use the ldap server in the same network/as close as posible to the production.
 
@@ -34,6 +35,7 @@ Check the web application is running on localhost:80 (default port, can be chang
 ### Production deployment 
 
 ### Initial setup
+
 **Step 1**: Clone the repo. Setup secrets
 
     git clone https://github.com/eea/eea.docker.bise.catalogue.git
@@ -54,6 +56,8 @@ Check the web application is running on localhost:80 (default port, can be chang
      docker exec -it eeadockerbisecatalogue_web_1 bundle exec rake db:create db:migrate
 
 **Step 3b**: Migrate existing database (for migrating data from an existing installation)
+
+TODO: this information is old, update instructions.
 
 (we are using two scripts to fetch data from an existing instance and another one to push it into the data containers)
 

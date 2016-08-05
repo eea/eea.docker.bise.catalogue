@@ -1,0 +1,28 @@
+authorizations: &AUTHORIZATIONS
+  group_base: ou=Roles,o=EIONET,l=Europe
+  required_groups:
+    - cn=extranet-bise-cat-read,cn=extranet-bise-cat,cn=extranet-bise,cn=extranet,ou=Roles,o=EIONET,l=Europe
+  require_attribute:
+    objectClass: top
+    authorizationRole: uniqueMember
+
+production:
+  host: host
+  port: 389
+  attribute: uid
+  base: ou=Users,o=EIONET,l=Europe
+  admin_user: uid=user,ou=Users,o=EIONET,l=Europe
+  admin_password: password
+  ssl: false
+  <<: *AUTHORIZATIONS
+
+development:
+  host: host
+  port: 389
+  attribute: uid
+  base: ou=Users,o=EIONET,l=Europe
+  admin_user: uid=user,ou=Users,o=EIONET,l=Europe
+  admin_password: password
+  ssl: false
+  <<: *AUTHORIZATIONS
+
