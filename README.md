@@ -7,11 +7,11 @@ A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installati
 ## Development instance
 
     docker-compose -f docker-compose.dev.yml build
-    docker-compose -f docker-compose.dev.yml run --rm web bundle exec rake db:create db:migrate db:seed
+    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create db:migrate db:seed
 
 To get admin rights, start the instance, login with Eionet LDAP account, then:
 
-    docker-compose -f docker-compose.dev.yml run --rm db psql -U postgres -h db
+    docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
     \c catalogue_development;
     update users set role_admin='t';
     CTRL+D
