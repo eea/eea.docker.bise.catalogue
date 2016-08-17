@@ -6,12 +6,12 @@ A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installati
 
 ## Development instance
 
-    docker-compose -f docker-compose.dev.yml build
-    docker-compose -f docker-compose.dev.yml run web bundle exec rake db:create db:migrate db:seed
+    docker-compose -f development.yml build
+    docker-compose -f development.yml run web bundle exec rake db:create db:migrate db:seed
 
 To get admin rights, start the instance, login with Eionet LDAP account, then:
 
-    docker-compose -f docker-compose.dev.yml run db psql -U postgres -h db
+    docker-compose -f development.yml run db psql -U postgres -h db
     \c catalogue_development;
     update users set role_admin='t';
     CTRL+D
@@ -30,7 +30,7 @@ Edit a `.secret` file for Postfix SMTP authentication, see: http://github.com/ee
 
     docker-compose up
     
-Check the web application is running on localhost:80 (default port, can be changed in docker-compose-dev.yml file).
+Check the web application is running on localhost:80 (default port, can be changed in development.yml file).
 
 ### Production deployment 
 

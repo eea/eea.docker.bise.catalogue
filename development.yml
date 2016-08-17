@@ -1,0 +1,75 @@
+version: '2'
+
+services:
+
+    db: 
+        build: postgres
+        ports:
+            - "6432:5432"
+        volumes_from:
+            - data
+
+    redis:
+        image: redis
+
+    esclient:
+        image: eeacms/elastic:bise
+        restart: always
+        command: # Single node
+            - elasticsearch
+            - -Des.node.data=true
+            - -Des.http.enabled=true
+            - -Des.node.master=true
+            - -Des.node.river=_none_
+            - -Des.transport.tcp.compress=true
+            - -Des.http.max_content_length=100mb
+        volumes_from:
+          - data
+        ports:
+          - "9200:9200"
+
+    web:
+        image: eeacms/bise.catalogue:latest
+        restart: always
+        environment:
+            - RAILS_ENV=development
+        command: rails server -b "0.0.0.0"
+        volumes:
+            - ./src/bise.catalogue:/app
+            - ./config/development/config/ldap.yml:/app/config/ldap.yml
+            - ./config/development/config/database.yml:/app/config/database.yml
+            - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
+            - ./config/development/config/redis.yml:/app/config/redis.yml
+            - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+            - ./tmp:/app/tmp
+        volumes_from:
+            - data
+        ports:
+            - "3000:3000"
+#       links:
+#           - db
+#           - esclient
+#           - redis
+
+    worker:
+        image: eeacms/bise.catalogue:latest
+        restart: always
+        environment:
+            - RAILS_ENV=development
+        command: bundle exec sidekiq -L log/sidekiq.log -q default -e development
+        volumes:
+            - ./src/bise.catalogue:/app
+            - ./config/development/config/ldap.yml:/app/config/ldap.yml
+            - ./config/development/config/database.yml:/app/config/database.yml
+            - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
+            - ./config/development/config/redis.yml:/app/config/redis.yml
+            - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+        volumes_from:
+            - data
+#       links:
+#           - db
+#           - esclient
+#           - redis
+
+    data:
+        build: ./data
