@@ -23,6 +23,8 @@ esmaster:
       - -Des.node.master=true
       - -Des.node.river=_none_
       - -Des.discovery.zen.ping.multicast.enabled=false
+    volumes:
+      - ./snapshots:/snapshots:z
 esclient:
     image: eeacms/elastic:bise
     restart: always
@@ -40,6 +42,8 @@ esclient:
       - esmaster
     ports:
       - 9200:9200
+    volumes:
+      - ./snapshots:/snapshots:z
 esworker1:
     image: eeacms/elastic:bise
     restart: always
@@ -56,6 +60,8 @@ esworker1:
       - dataw1
     environment:
       - ES_HEAP_SIZE=2g
+    volumes:
+      - ./snapshots:/snapshots:z
 dataw1:
     image: busybox
     volumes:
@@ -76,6 +82,8 @@ esworker2:
       - dataw2
     environment:
       - ES_HEAP_SIZE=2g
+    volumes:
+      - ./snapshots:/snapshots:z
 dataw2:
     image: busybox
     volumes:
