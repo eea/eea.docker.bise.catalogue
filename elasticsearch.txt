@@ -1,0 +1,62 @@
+# How to create, delete and restore 
+
+The ElasticSearch in production is currently configured with a 
+snapshots repository at /snapshots/, which is mapped to the
+snapshots folder in the dockerized folder.
+
+$ curl -XGET 'http://10.0.30.44:9200/_snapshot/backup?pretty'
+{
+  "backup" : {
+    "type" : "fs",
+    "settings" : {
+      "compress" : "true",
+      "location" : "/snapshots/"
+    }
+  }
+}
+
+You can create a new snapshot:
+curl -XPUT 'http://10.0.30.44:9200/_snapshot/backup/snapshot_2?wait_for_completion=true'
+
+You can list the snapshots:
+$ curl -XGET 'http://10.0.30.44:9200/_snapshot/backup/_all'
+
+The snapshots will be created in the eea.docker.bise.catalogue/snapshots/ folder
+
+Make a tgz of that folder and upload it to another server:
+
+cd eea.docker.bise.catalogue
+$ tar czf snapshots.tgz snapshots/
+scp snapshots.tgz ip:/var/local/eea.docker.bise.catalogue
+
+# on the other server, in the proper location:
+$ tar xzf snapshots.tgz
+
+Make sure the snapshots content is unpacked to the
+eea.docker.bise.catalogue/snapshots/ folder. This folder should now have a file
+"index" and folders and files about the contained snapshots.
+
+You should create the backup location on the new ES servers:
+
+$ curl -XPUT 'http://10.0.30.44:9200/_snapshot/backup' -d '{
+    "type": "fs",
+    "settings": {
+        "location": "/snapshots",
+        "compress": true
+    }
+}'
+
+Now you can verify that the snapshot is located by the ES server:
+
+$ curl -XGET 'http://10.0.30.44:9200/_snapshot/backup/_all/'
+
+You should see JSON information about the snapshot_1 and its indexes.
+
+You can restore the snapshot (note that you have to close the existing indexes
+first, if they would be overwritten), use ES Head for that,
+http://10.0.30.44:9200/_plugin/head
+
+$ curl -XPOST 'http://10.0.30.44:9200/_snapshot/backup/snapshot_1/_restore
+
+The ElasticSearch server will now open the indexes, it will take some time for
+them to sync.
