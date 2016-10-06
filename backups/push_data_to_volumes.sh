@@ -1,5 +1,4 @@
-#for DATA_ID in eeadockerbisecatalogue_data_1 eeadockerbisecatalogue_dataw1_1 eeadockerbisecatalogue_dataw2_1; do export DATA_ID; ./put.sh; done
-
+#!/bin/bash
 
 DATA_ID="eeadockerbisecatalogue_data_1"
 echo "Processing $DATA_ID"
@@ -14,23 +13,23 @@ docker run --rm --volumes-from=$DATA_ID busybox chmod 700 /var/lib/postgresql/da
 docker run --rm --volumes-from=$DATA_ID busybox sed -ri "s/^#(listen_addresses\s*=\s*)\S+/\1'*'/" /var/lib/postgresql/data/postgresql.conf
 docker run --rm --volumes-from=$DATA_ID busybox sh -c 'echo "host all all 0.0.0.0/0 trust" >> /var/lib/postgresql/data/pg_hba.conf'
 
-echo "Copying ES data for $DATA_ID"
-# Copy Elasticsearch files to the data container
-docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data/'
-# Fix state. Not needed if using the same ES version (1.3)
-#docker run --rm --volumes-from=$DATA_ID busybox sh -c 'find "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/" -name "state-*" -not -name "state-*.st" -exec rm \{\} \;'
-
 echo "Copying uploads"
-# Copy uploads
 docker run --rm -v `pwd`/$DATA_ID/uploads:/host --volumes-from=$DATA_ID busybox cp -R /host/document /app/public/uploads
 docker run --rm -v `pwd`/$DATA_ID/uploads:/host --volumes-from=$DATA_ID busybox cp -R /host/tmp /app/public/uploads
 
-DATA_ID="eeadockerbisecatalogue_dataw1_1"
-echo "Processing $DATA_ID"
-echo "Copying ES data for $DATA_ID"
-docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data/'
+#echo "Copying ES data for $DATA_ID"
+# Copy Elasticsearch files to the data container
+#docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data/'
+# Fix state. Not needed if using the same ES version (1.3)
+#docker run --rm --volumes-from=$DATA_ID busybox sh -c 'find "/usr/share/elasticsearch/data/Catalogue Cluster/nodes/0/" -name "state-*" -not -name "state-*.st" -exec rm \{\} \;'
 
-DATA_ID="eeadockerbisecatalogue_dataw2_1"
-echo "Processing $DATA_ID"
-echo "Copying ES data for $DATA_ID"
-docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data'
+
+#DATA_ID="eeadockerbisecatalogue_dataw1_1"
+#echo "Processing $DATA_ID"
+#echo "Copying ES data for $DATA_ID"
+#docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data/'
+
+#DATA_ID="eeadockerbisecatalogue_dataw2_1"
+#echo "Processing $DATA_ID"
+#echo "Copying ES data for $DATA_ID"
+#docker run --rm -v `pwd`/$DATA_ID/elasticsearch:/host --volumes-from=$DATA_ID busybox sh -c 'cp -R /host/* /usr/share/elasticsearch/data'

@@ -24,15 +24,15 @@ def get_volumes(container_name):
 DESTINATIONS = {
     "/var/lib/postgresql": 'postgresql',
     "/var/lib/postgresql/data": 'postgresql-data',
-    "/usr/share/elasticsearch/data": 'elasticsearch',
+#   "/usr/share/elasticsearch/data": 'elasticsearch',
     "/app/public/uploads": 'uploads',
 }
 
 
 CONTAINERS = [
     'eeadockerbisecatalogue_data_1',
-    'eeadockerbisecatalogue_dataw1_1',
-    'eeadockerbisecatalogue_dataw2_1'
+#   'eeadockerbisecatalogue_dataw1_1',
+#   'eeadockerbisecatalogue_dataw2_1'
 ]
 
 
@@ -54,4 +54,3 @@ if __name__ == "__main__":
     main()
 
 # vim: set ts=4 sw=4 si et:
-
