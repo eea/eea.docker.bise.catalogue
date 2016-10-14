@@ -99,6 +99,8 @@ The Docker service should expose a frontend nginx container on the port 80.
 
 If anything goes wrong, use 'sh uninstall.sh' script to remove all containers and start all over again.
 
+**Step4**: See elasticsearch.txt on how to migrate ES data using snapshots
+
 
 ### Code changes / re-deployment
 

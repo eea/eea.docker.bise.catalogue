@@ -111,6 +111,7 @@ web:
   environment:
     - RAILS_ENV=production
   volumes:
+    - ./src/bise.catalogue:/app
     - ./config/production/config/ldap.yml:/app/config/ldap.yml
     - ./config/production/config/database.yml:/app/config/database.yml
     - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
