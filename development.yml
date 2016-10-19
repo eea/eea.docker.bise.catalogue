@@ -59,6 +59,7 @@ services:
       - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
       - ./config/production/config/redis.yml:/app/config/redis.yml
       - ./config/production/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+      - ./src/bise.catalogue/config/environments/devproduction.rb:/app/config/environments/production.rb
       - ./var/tmp-prod:/app/tmp
     volumes_from:
       - data
