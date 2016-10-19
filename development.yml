@@ -51,7 +51,7 @@ services:
     image: eeacms/bise.catalogue:latest
     environment:
       - RAILS_ENV=production
-    command: bash
+    command: tail -f /dev/null
     volumes:
       - ./src/bise.catalogue:/app
       - ./config/production/config/ldap.yml:/app/config/ldap.yml
