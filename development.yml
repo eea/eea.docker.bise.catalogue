@@ -33,15 +33,16 @@ services:
     # build: ./src/bise.catalogue
     environment:
       - RAILS_ENV=development
-    command: rails server -b "0.0.0.0"
+    command: bash -c "rm /app/tmp/pids/server.pid && rails server"
     volumes:
       - ./src/bise.catalogue:/app
-      - ./config/development/config/ldap.yml:/app/config/ldap.yml
-      - ./config/development/config/database.yml:/app/config/database.yml
-      - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
-      - ./config/development/config/redis.yml:/app/config/redis.yml
-      - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+      - ./config/overrides/ldap.yml:/app/config/ldap.yml
+      - ./config/overrides/database.yml:/app/config/database.yml
+      - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
+      - ./config/overrides/redis.yml:/app/config/redis.yml
+      - ./config/ssmtp.conf:/etc/ssmtp/ssmtp.conf
       - ./var/tmp:/app/tmp
+      - ./var/log-web:/app/log
     volumes_from:
       - data
     ports:
@@ -53,16 +54,11 @@ services:
       - RAILS_ENV=production
     command: tail -f /dev/null
     volumes:
-      - ./src/bise.catalogue:/app
-      - ./config/production/config/ldap.yml:/app/config/ldap.yml
-      - ./config/production/config/database.yml:/app/config/database.yml
-      - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
-      - ./config/production/config/redis.yml:/app/config/redis.yml
-      - ./config/production/ssmtp.conf:/etc/ssmtp/ssmtp.conf
       - ./src/bise.catalogue/config/environments/devproduction.rb:/app/config/environments/production.rb
       - ./var/tmp-prod:/app/tmp
+      - ./var/log-webprod:/app/log
     volumes_from:
-      - data
+      - web
     ports:
       - "5000:3000"
 
@@ -72,18 +68,11 @@ services:
       - RAILS_ENV=development
     command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e development
     volumes:
-      - ./src/bise.catalogue:/app
-      - ./config/development/config/ldap.yml:/app/config/ldap.yml
-      - ./config/development/config/database.yml:/app/config/database.yml
-      - ./config/development/config/elasticsearch.yml:/app/config/elasticsearch.yml
-      - ./config/development/config/redis.yml:/app/config/redis.yml
-      - ./config/development/ssmtp.conf:/etc/ssmtp/ssmtp.conf
-      - ./var/log:/app/log
+      - ./var/log-worker:/app/log
     volumes_from:
-      - data
+      - web
 
   data:
     build: ./data
     volumes:
-      - ./var/tmp:/tmp
       - ./snapshots:/snapshots:z

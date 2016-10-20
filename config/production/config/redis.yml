@@ -1,4 +1,0 @@
-production:
-  url: redis://redis:6379/0
-development:
-  url: redis://redis:6379/0
