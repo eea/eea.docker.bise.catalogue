@@ -52,11 +52,10 @@ services:
     image: eeacms/bise.catalogue:latest
     environment:
       - RAILS_ENV=production
-    command: tail -f /dev/null
+    command: sh -c "rm -rf /app/config/environments/production.rb && ln -s /app/config/environments/devproduction.rb /app/config/environments/production.rb && tail -f /dev/null"
     volumes:
-      - ./src/bise.catalogue/config/environments/devproduction.rb:/app/config/environments/production.rb
-      - ./var/tmp-prod:/app/tmp
-      - ./var/log-webprod:/app/log
+      - ./var/tmp-prod:/app/tmp:rw
+      - ./var/log-webprod:/app/log:rw
     volumes_from:
       - web
     ports:
@@ -77,3 +76,5 @@ services:
     volumes:
       - ./snapshots:/snapshots:z
       - ./var/tmp:/tmp
+
+# - ./src/devproduction.rb:/app/config/environments/production.rb:rw
