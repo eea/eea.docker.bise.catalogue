@@ -7,7 +7,7 @@ A BISE Catalogue deployment requires [Docker](https://docs.docker.com/installati
 ## Development instance
 
     docker-compose -f development.yml build
-    docker-compose -f development.yml run web bundle exec rake db:create db:migrate db:seed
+    docker-compose -f development.yml run --rm web bundle exec rake db:create db:migrate db:seed
 
 To get admin rights, start the instance, login with Eionet LDAP account, then:
 
@@ -29,10 +29,10 @@ Edit a `.secret` file for Postfix SMTP authentication, see: http://github.com/ee
 ## Start
 
     docker-compose up
-    
+
 Check the web application is running on localhost:80 (default port, can be changed in development.yml file).
 
-### Production deployment 
+### Production deployment
 
 ### Initial setup
 
@@ -71,9 +71,9 @@ TODO: this information is old, update instructions.
      docker-compose up -d
 
 **Step 4**: Check installation
-   
+
      curl localhost
-     
+
 **Extra**: How to get admin rights
 
 Login using your EIONET ldap account, then issue:
