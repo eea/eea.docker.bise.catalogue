@@ -33,7 +33,7 @@ services:
     # build: ./src/bise.catalogue
     environment:
       - RAILS_ENV=development
-    command: bash -c "rm /app/tmp/pids/server.pid && rails server"
+    command: sh -c "rm /app/tmp/pids/server.pid && rails server"
     volumes:
       - ./src/bise.catalogue:/app
       - ./config/overrides/ldap.yml:/app/config/ldap.yml
@@ -76,3 +76,4 @@ services:
     build: ./data
     volumes:
       - ./snapshots:/snapshots:z
+      - ./var/tmp:/tmp
