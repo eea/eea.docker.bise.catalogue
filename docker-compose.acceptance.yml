@@ -108,15 +108,16 @@ dataw2:
 web:
   image: eeacms/bise.catalogue:latest
   restart: always
+  command: bash -c "rm -f /app/tmp/unicorn.pid && rm -f /app/tmp/pids/server.pid && bundle exec unicorn -c /app/config/unicorn.rb -p 3000 -E production"
   environment:
     - RAILS_ENV=production
   volumes:
     - ./src/bise.catalogue:/app
-    - ./config/production/config/ldap.yml:/app/config/ldap.yml
-    - ./config/production/config/database.yml:/app/config/database.yml
-    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./config/production/config/redis.yml:/app/config/redis.yml
-    - ./config/production/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    - ./config/overrides/ldap.yml:/app/config/ldap.yml
+    - ./config/overrides/database.yml:/app/config/database.yml
+    - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/overrides/redis.yml:/app/config/redis.yml
+    - ./config/ssmtp.conf:/etc/ssmtp/ssmtp.conf
     - ./tmp/:/app/tmp
     #- ./production.rb:/app/config/environments/production.rb
   volumes_from:
@@ -133,10 +134,11 @@ worker:
     - RAILS_ENV=production
   command: bundle exec sidekiq -L log/sidekiq.log -q default -e production
   volumes:
-    - ./config/production/config/ldap.yml:/app/config/ldap.yml
-    - ./config/production/config/database.yml:/app/config/database.yml
-    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./config/production/config/redis.yml:/app/config/redis.yml
+    - ./src/bise.catalogue:/app
+    - ./config/overrides/ldap.yml:/app/config/ldap.yml
+    - ./config/overrides/database.yml:/app/config/database.yml
+    - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/overrides/redis.yml:/app/config/redis.yml
   volumes_from:
     - data
   links:
