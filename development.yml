@@ -52,8 +52,8 @@ services:
     image: eeacms/bise.catalogue:latest
     environment:
       - RAILS_ENV=production
-    # warning! this removes production.rb
-    command: sh -c "rm -f /app/config/environments/production.rb && ln -s /app/config/environments/devproduction.rb /app/config/environments/production.rb && tail -f /dev/null"
+      - BISE_DEVEL=on
+    command: sh -c "tail -f /dev/null"
     volumes:
       - ./var/tmp-prod:/app/tmp:rw
       - ./var/log-webprod:/app/log:rw
@@ -65,7 +65,7 @@ services:
   worker:
     image: eeacms/bise.catalogue:latest
     environment:
-      - RAILS_ENV=development
+      - RAILS_ENV=production
     command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e development
     volumes:
       - ./var/log-worker:/app/log
