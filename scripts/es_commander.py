@@ -18,7 +18,7 @@ def _get_indices(server):
     return ixs
 
 
-def create_snapshot_location(server):
+def create_snapshot_location(args):
     settings = {
         "type": "fs",
         "settings": {
@@ -27,7 +27,7 @@ def create_snapshot_location(server):
         }
     }
     print("Creating snapshot location")
-    url = 'http://{}:9200/_snapshot/backup'.format(server)
+    url = 'http://{}:9200/_snapshot/backup'.format(args.hostname)
     req = requests.put(url, json=settings)
     assert req.json()['acknowledged'] is True
 
@@ -41,13 +41,15 @@ def _openclose_indices(server, close=True):
     }[close]
 
     for ix in ixs:
-        print("{} index {}".format(op, ix))
+        # print("{} index {}".format(op, ix))
         url = 'http://{}:9200/{}/{}'.format(server, ix, op)
         req = requests.post(url)
         assert req.json()['acknowledged'] is True
 
 
-def make_backup(server, name):
+def make_backup(args):
+    server = args.hostname
+    name = args.snapshot
     url = ('http://{}:9200/_snapshot/backup/{}?wait_for_completion=true'
            .format(server, name))
     res = requests.put(url).json()
@@ -55,7 +57,9 @@ def make_backup(server, name):
     print "Snapshot restored"
 
 
-def restore_backup(server, name):
+def restore_backup(args):
+    server = args.hostname
+    name = args.snapshot
     _openclose_indices(server, close=True)
     url = 'http://{}:9200/_snapshot/backup/{}/_restore'.format(server, name)
     res = requests.post(url).json()
@@ -63,7 +67,8 @@ def restore_backup(server, name):
     print(res)
 
 
-def del_all(server):
+def del_all(args):
+    server = args.hostname
     _openclose_indices(server, close=False)
     url = 'http://{}:9200/_all/_settings'.format(server)
     all = requests.get(url).json().keys()
@@ -75,7 +80,8 @@ def del_all(server):
         assert req.json()['acknowledged'] is True
 
 
-def show_backups(server):
+def show_backups(args):
+    server = args.hostname
     print("Showing existing snapshots:\r")
     url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
     req = requests.get(url)
@@ -92,8 +98,7 @@ def show_backups(server):
         ))
 
 
-def del_indexes(server, match):
-    _openclose_indices(server, close=False)
+def _get_matching_indexes(server, match=""):
     url = 'http://{}:9200/_all/_settings'.format(server)
     all = requests.get(url).json().keys()
 
@@ -104,7 +109,17 @@ def del_indexes(server, match):
 
     if not matches:
         print "No matches"
-        return
+        return []
+
+    return matches
+
+
+def del_indexes(args):
+    server = args.hostname
+    match = args.match
+    _openclose_indices(server, close=False)
+
+    matches = _get_matching_indexes(server, match)
 
     print "This will delete the following indexes: ", ", ".join(matches)
     inp = input("Are you sure you want to continue? y/n [n]")
@@ -118,14 +133,34 @@ def del_indexes(server, match):
         assert req.json()['acknowledged'] is True
 
 
+def set_replicas(args):
+    server = args.hostname
+    match = args.match
+
+    if not args.replicas.isdigit():
+        print "Please set --replicas to a valid number"
+        sys.exit(1)
+
+    replicas = int(args.replicas)
+    _openclose_indices(server, close=False)
+    matches = _get_matching_indexes(server, match)
+
+    settings = {"index": {"number_of_replicas": replicas}}
+    for ix in matches:
+        url = 'http://{}:9200/{}/_settings'.format(server, ix)
+        req = requests.put(url, json=settings)
+        assert req.json()['acknowledged'] is True
+
+
 def main():
     handlers = {
-        'init': lambda args: create_snapshot_location(args.hostname),
-        'view': lambda args: show_backups(args.hostname),
-        'backup': lambda args: make_backup(args.hostname, args.snapshot),
-        'restore': lambda args: restore_backup(args.hostname, args.snapshot),
-        'delall': lambda args: del_all(args.hostname),
-        'del': lambda args: del_indexes(args.hostname, args.match)
+        'init': create_snapshot_location,
+        'view': show_backups,
+        'backup': make_backup,
+        'restore': restore_backup,
+        'delall': del_all,
+        'del': del_indexes,
+        'setreplicas': set_replicas,
     }
 
     parser = argparse.ArgumentParser()
@@ -139,7 +174,11 @@ def main():
     parser.add_argument("--snapshot",
                         help="Snapshot name you want restored")
     parser.add_argument("--match",
-                        help="Match indexes to delete")
+                        help="Match indexes to delete",
+                        default="")
+    parser.add_argument("--replicas",
+                        help="Number of replicas to set",
+                        default="0")
     args = parser.parse_args()
 
     def fallback(*args):
