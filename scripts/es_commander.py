@@ -92,12 +92,28 @@ def show_backups(server):
         ))
 
 
+def del_indexes(server, match):
+    _openclose_indices(server, close=False)
+    url = 'http://{}:9200/_all/_settings'.format(server)
+    all = requests.get(url).json().keys()
+
+    for ix in all:
+        if match not in ix:
+            continue
+        print("Deleting {} index ".format(ix))
+        url = 'http://{}:9200/{}'.format(server, ix)
+        req = requests.delete(url)
+        assert req.json()['acknowledged'] is True
+
+
 def main():
     handlers = {
+        'init': lambda args: create_snapshot_location(args.hostname),
         'view': lambda args: show_backups(args.hostname),
         'backup': lambda args: make_backup(args.hostname, args.snapshot),
         'restore': lambda args: restore_backup(args.hostname, args.snapshot),
         'delall': lambda args: del_all(args.hostname),
+        'del': lambda args: del_indexes(args.hostname, args.match)
     }
 
     parser = argparse.ArgumentParser()
@@ -110,10 +126,9 @@ def main():
     )
     parser.add_argument("--snapshot",
                         help="Snapshot name you want restored")
+    parser.add_argument("--match",
+                        help="Match indexes to delete")
     args = parser.parse_args()
-
-    server = args.hostname
-    create_snapshot_location(server)
 
     def fallback(*args):
         print "Not a command"
