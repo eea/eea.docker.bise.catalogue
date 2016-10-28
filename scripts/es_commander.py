@@ -97,9 +97,21 @@ def del_indexes(server, match):
     url = 'http://{}:9200/_all/_settings'.format(server)
     all = requests.get(url).json().keys()
 
+    matches = []
     for ix in all:
-        if match not in ix:
-            continue
+        if match in ix:
+            matches.append(ix)
+
+    if not matches:
+        print "No matches"
+        return
+
+    print "This will delete the following indexes: ", ", ".join(matches)
+    inp = input("Are you sure you want to continue? y/n [n]")
+    if inp.lower() != 'y':
+        return
+
+    for ix in matches:
         print("Deleting {} index ".format(ix))
         url = 'http://{}:9200/{}'.format(server, ix)
         req = requests.delete(url)
