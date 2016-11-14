@@ -47,27 +47,29 @@ def _openclose_indices(server, close=True):
         assert req.json()['acknowledged'] is True
 
 
-def make_backup(args):
+def make_snapshot(args):
     server = args.hostname
     name = args.snapshot
     url = ('http://{}:9200/_snapshot/backup/{}?wait_for_completion=true'
            .format(server, name))
     res = requests.put(url).json()
-    assert res.json()['accepted'] is True
-    print "Snapshot restored"
+    assert 'snapshot' in res
+    assert res['snapshot']['state'] == 'SUCCESS'
+    print "Snapshot created"
 
 
-def restore_backup(args):
+def restore_snapshot(args):
     server = args.hostname
     name = args.snapshot
     _openclose_indices(server, close=True)
     url = 'http://{}:9200/_snapshot/backup/{}/_restore'.format(server, name)
     res = requests.post(url).json()
     _openclose_indices(server, close=False)
+    print "Snapshot restored"
     print(res)
 
 
-def del_all(args):
+def del_all_indexes(args):
     server = args.hostname
     _openclose_indices(server, close=False)
     url = 'http://{}:9200/_all/_settings'.format(server)
@@ -80,7 +82,7 @@ def del_all(args):
         assert req.json()['acknowledged'] is True
 
 
-def show_backups(args):
+def show_snapshots(args):
     server = args.hostname
     print("Showing existing snapshots:\r")
     url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
@@ -96,6 +98,34 @@ def show_backups(args):
             sn['shards']['total'],
             sn['shards']['successful']
         ))
+
+
+def del_snapshots(args):
+    server = args.hostname
+    match = args.match
+    _openclose_indices(server, close=False)
+
+    matches = _get_matching_snapshots(server, match)
+
+    print "This will delete the following snapshots: ", ", ".join(matches)
+    inp = raw_input("Are you sure you want to continue? y/n [n]")
+    if inp.lower() != 'y':
+        return
+
+    for ix in matches:
+        print("Deleting {} snapshot ".format(ix))
+        url = 'http://{}:9200/_snapshot/backup/{}'.format(server, ix)
+        req = requests.delete(url)
+        assert req.json()['acknowledged'] is True
+
+
+def _get_matching_snapshots(server, match):
+    url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
+    req = requests.get(url)
+    resp = req.json()
+    snaps = resp['snapshots']
+    all = [s['snapshot'] for s in snaps if match in s['snapshot']]
+    return all
 
 
 def _get_matching_indexes(server, match=""):
@@ -122,7 +152,7 @@ def del_indexes(args):
     matches = _get_matching_indexes(server, match)
 
     print "This will delete the following indexes: ", ", ".join(matches)
-    inp = input("Are you sure you want to continue? y/n [n]")
+    inp = raw_input("Are you sure you want to continue? y/n [n]")
     if inp.lower() != 'y':
         return
 
@@ -154,21 +184,23 @@ def set_replicas(args):
 
 def main():
     handlers = {
-        'init': create_snapshot_location,
-        'view': show_backups,
-        'backup': make_backup,
-        'restore': restore_backup,
-        'delall': del_all,
-        'del': del_indexes,
-        'setreplicas': set_replicas,
+        'init': (create_snapshot_location, "Initialize snapshot location"),
+        'view': (show_snapshots, "Show existing snapshots"),
+        'snapshot': (make_snapshot, "Make a new snapshot"),
+        'restore': (restore_snapshot, "Restore a snapshot"),
+        'del_all_indexes': (del_all_indexes, "Delete all indexes"),
+        'del_index': (del_indexes, "Delete some indexes"),
+        'del_snapshots': (del_snapshots, "Delete some snapshots"),
+        'setreplicas': (set_replicas, "Configure ES: set number of replicas"),
     }
 
     parser = argparse.ArgumentParser()
     parser.add_argument("hostname",
                         help="Server hostname")
+    # TODO: better formatting of help
     parser.add_argument(
         "command",
-        help="The command you want performed. One of: " +
+        help="The command you want performed. One of: \n" +
              ", ".join(handlers.keys())
     )
     parser.add_argument("--snapshot",
@@ -186,7 +218,7 @@ def main():
         return sys.exit(1)
 
     cmd = args.command
-    handlers.get(cmd, fallback)(args)
+    handlers.get(cmd, fallback)[0](args)
 
 
 if __name__ == "__main__":
