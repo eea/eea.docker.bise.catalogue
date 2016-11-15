@@ -8,3 +8,5 @@ VOLUME ["/var/lib/postgresql", "/var/lib/postgresql/data"]
 VOLUME /usr/share/elasticsearch/data
 VOLUME /app/public/uploads
 
+RUN chown 999:999 /var/lib/postgresql -R
+RUN chmod 700 /var/lib/postgresql/data
