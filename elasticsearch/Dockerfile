@@ -14,4 +14,3 @@ RUN plugin -install mobz/elasticsearch-head
 
 RUN echo 'cluster.name: "Catalogue Cluster"' >> /usr/share/elasticsearch/config/elasticsearch.yml
 RUN echo 'repo.path: ["/snapshots"]' >> /usr/share/elasticsearch/config/elasticsearch.yml
-RUN echo 'cluster.routing.allocation.disk.watermark.high = ""' >> /usr/share/elasticsearch/config/elasticsearch.yml

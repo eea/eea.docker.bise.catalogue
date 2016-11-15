@@ -5,89 +5,102 @@ db:
     - "5432"
   volumes_from:
     - data
+
 redis:
   image: redis
   restart: always
+
 postfix:
   image: eeacms/postfix:eionet
   restart: always
   env_file: .secret
+    #
 # ElasticSearch config
 esmaster:
-    image: eeacms/elastic:bise
-    restart: always
-    command: # No data, no http, no river, can be master
-      - elasticsearch
-      - -Des.node.data=false
-      - -Des.http.enabled=false
-      - -Des.node.master=true
-      - -Des.node.river=_none_
-      - -Des.discovery.zen.ping.multicast.enabled=false
-    volumes:
-      - ./snapshots:/snapshots:z
+  # image: eeacms/elastic:bise
+  build: elasticsearch
+  restart: always
+  command: # No data, no http, no river, can be master
+    - elasticsearch
+    - -Des.node.data=false
+    - -Des.http.enabled=false
+    - -Des.node.master=true
+    - -Des.node.river=_none_
+    - -Des.discovery.zen.ping.multicast.enabled=false
+  volumes:
+    - ./snapshots:/snapshots:z
+
 esclient:
-    image: eeacms/elastic:bise
-    restart: always
-    command: # No data, http, no river, can't be master
-      - elasticsearch
-      - -Des.node.data=false
-      - -Des.http.enabled=true
-      - -Des.node.master=false
-      - -Des.node.river=_none_
-      - -Des.transport.tcp.compress=true
-      - -Des.http.max_content_length=100mb
-      - -Des.discovery.zen.ping.multicast.enabled=false
-      - -Des.discovery.zen.ping.unicast.hosts=esmaster
-    links:
-      - esmaster
-    ports:
-      - 9200:9200
-    volumes:
-      - ./snapshots:/snapshots:z
+  # image: eeacms/elastic:bise
+  build: elasticsearch
+  restart: always
+  command: # No data, http, no river, can't be master
+    - elasticsearch
+    - -Des.node.data=false
+    - -Des.http.enabled=true
+    - -Des.node.master=false
+    - -Des.node.river=_none_
+    - -Des.transport.tcp.compress=true
+    - -Des.http.max_content_length=100mb
+    - -Des.discovery.zen.ping.multicast.enabled=false
+    - -Des.discovery.zen.ping.unicast.hosts=esmaster
+  links:
+    - esmaster
+  ports:
+    - 9200:9200
+  volumes:
+    - ./snapshots:/snapshots:z
+
 esworker1:
-    image: eeacms/elastic:bise
-    restart: always
-    command: # Data, no http, river, can't be master
-      - elasticsearch
-      - -Des.node.data=true
-      - -Des.http.enabled=false
-      - -Des.node.master=false
-      - -Des.discovery.zen.ping.multicast.enabled=false
-      - -Des.discovery.zen.ping.unicast.hosts=esmaster
-    links:
-      - esmaster
-    volumes_from:
-      - dataw1
-    volumes:
-      - ./snapshots:/snapshots:z
-    environment:
-      - ES_HEAP_SIZE=2g
+  #image: eeacms/elastic:bise
+  build: elasticsearch
+  restart: always
+  command: # Data, no http, river, can't be master
+    - elasticsearch
+    - -Des.node.data=true
+    - -Des.http.enabled=false
+    - -Des.node.master=false
+    - -Des.discovery.zen.ping.multicast.enabled=false
+    - -Des.discovery.zen.ping.unicast.hosts=esmaster
+  links:
+    - esmaster
+  volumes_from:
+    - dataw1
+  volumes:
+    - ./snapshots:/snapshots:z
+  environment:
+    - ES_HEAP_SIZE=2g
+
 dataw1:
     image: busybox
     volumes:
         - /usr/share/elasticsearch/data
+
 esworker2:
-    image: eeacms/elastic:bise
-    restart: always
-    command: # Data, no http, river, can't be master
-      - elasticsearch
-      - -Des.node.data=true
-      - -Des.http.enabled=false
-      - -Des.node.master=false
-      - -Des.discovery.zen.ping.multicast.enabled=false
-      - -Des.discovery.zen.ping.unicast.hosts=esmaster
-    links:
-      - esmaster
-    volumes_from:
-      - dataw2
-    volumes:
-      - ./snapshots:/snapshots:z
-    environment:
-      - ES_HEAP_SIZE=2g
+  # image: eeacms/elastic:bise
+  build: elasticsearch
+  restart: always
+  command: # Data, no http, river, can't be master
+    - elasticsearch
+    - -Des.node.data=true
+    - -Des.http.enabled=false
+    - -Des.node.master=false
+    - -Des.discovery.zen.ping.multicast.enabled=false
+    - -Des.discovery.zen.ping.unicast.hosts=esmaster
+  links:
+    - esmaster
+  volumes_from:
+    - dataw2
+  volumes:
+    - ./snapshots:/snapshots:z
+  environment:
+    - ES_HEAP_SIZE=2g
+
 dataw2:
-    image: busybox
-    volumes:
-        - /usr/share/elasticsearch/data
+  image: busybox
+  volumes:
+      - /usr/share/elasticsearch/data
+
 # Alternative single container setup:
 #esclient:
 #    image: eeacms/elastic:bise
@@ -105,6 +118,7 @@ dataw2:
 #    ports:
 #      - 9200:9200
 # Ruby on Rails config
+
 web:
   image: eeacms/bise.catalogue:latest
   restart: always
@@ -127,6 +141,7 @@ web:
     - esclient
     - redis
     - postfix
+
 worker:
   image: eeacms/bise.catalogue:latest
   restart: always
@@ -145,6 +160,7 @@ worker:
     - db
     - esclient
     - redis
+
 # NGINX frontend
 frontend:
     build: frontend
@@ -156,6 +172,7 @@ frontend:
         - data
     ports:
         - 8010:80
+
 # Data volume container
 data:
   build: data
