@@ -1,6 +1,17 @@
-FROM elasticsearch:1.3
+#FROM elasticsearch:2.4.0
+FROM elasticsearch:1.4.5
 
-RUN plugin -install elasticsearch/elasticsearch-mapper-attachments/2.3.2
+# for ES 1.7
+# RUN plugin -install elasticsearch/elasticsearch-mapper-attachments/2.7.1
+
+# for ES 1.4
+RUN plugin -install elasticsearch/elasticsearch-mapper-attachments/2.4.3
+
+# for eeacms.elasticsearch:bise
+# RUN plugin install mapper-attachments
+
 RUN plugin -install mobz/elasticsearch-head
 
 RUN echo 'cluster.name: "Catalogue Cluster"' >> /usr/share/elasticsearch/config/elasticsearch.yml
+RUN echo 'repo.path: ["/snapshots"]' >> /usr/share/elasticsearch/config/elasticsearch.yml
+RUN echo 'cluster.routing.allocation.disk.watermark.high = ""' >> /usr/share/elasticsearch/config/elasticsearch.yml

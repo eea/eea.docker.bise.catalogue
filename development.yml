@@ -13,8 +13,8 @@ services:
     image: redis
 
   esclient:
-    # build: ./elasticsearch/
-    image: eeacms/elastic:bise
+    build: ./elasticsearch/
+    # image: eeacms/elastic:bise
     command: # Single node
           - elasticsearch
           - -Des.node.data=true
