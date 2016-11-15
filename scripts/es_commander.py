@@ -29,7 +29,11 @@ def create_snapshot_location(args):
     print("Creating snapshot location")
     url = 'http://{}:9200/_snapshot/backup'.format(args.hostname)
     req = requests.put(url, json=settings)
-    assert req.json()['acknowledged'] is True
+    res = req.json()
+    if 'acknowledged' not in res:
+        print res
+        sys.exit(1)
+    assert res['acknowledged'] is True
 
 
 def _openclose_indices(server, close=True):
@@ -88,6 +92,10 @@ def show_snapshots(args):
     url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
     req = requests.get(url)
     resp = req.json()
+    if not 'snapshots' in resp:
+        print "No snapshots. "
+        print "Probably need to run <es_commander ... init> first?"
+        sys.exit(1)
     snaps = resp['snapshots']
     for sn in snaps:
         print(_sn_tpl.format(
@@ -218,7 +226,7 @@ def main():
         return sys.exit(1)
 
     cmd = args.command
-    handlers.get(cmd, fallback)[0](args)
+    handlers.get(cmd, [fallback])[0](args)
 
 
 if __name__ == "__main__":
