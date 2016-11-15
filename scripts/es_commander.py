@@ -74,6 +74,11 @@ def restore_snapshot(args):
 
 
 def del_all_indexes(args):
+    print "This will delete the following indexes: ", ", ".join(matches)
+    inp = raw_input("Are you sure you want to continue? y/n [n]")
+    if inp.lower() != 'y':
+        return
+
     server = args.hostname
     _openclose_indices(server, close=False)
     url = 'http://{}:9200/_all/_settings'.format(server)
