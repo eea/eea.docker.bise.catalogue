@@ -66,28 +66,28 @@ dataw1:
     image: busybox
     volumes:
         - /usr/share/elasticsearch/data
-esworker2:
-    image: eeacms/elastic:bise
-    restart: always
-    command: # Data, no http, river, can't be master
-      - elasticsearch
-      - -Des.node.data=true
-      - -Des.http.enabled=false
-      - -Des.node.master=false
-      - -Des.discovery.zen.ping.multicast.enabled=false
-      - -Des.discovery.zen.ping.unicast.hosts=esmaster
-    links:
-      - esmaster
-    volumes_from:
-      - dataw2
-    environment:
-      - ES_HEAP_SIZE=2g
-    volumes:
-      - ./snapshots:/snapshots:z
-dataw2:
-    image: busybox
-    volumes:
-        - /usr/share/elasticsearch/data
+#esworker2:
+#    image: eeacms/elastic:bise
+#    restart: always
+#    command: # Data, no http, river, can't be master
+#      - elasticsearch
+#      - -Des.node.data=true
+#      - -Des.http.enabled=false
+#      - -Des.node.master=false
+#      - -Des.discovery.zen.ping.multicast.enabled=false
+#      - -Des.discovery.zen.ping.unicast.hosts=esmaster
+#    links:
+#      - esmaster
+#    volumes_from:
+#      - dataw2
+#    environment:
+#      - ES_HEAP_SIZE=2g
+#    volumes:
+#      - ./snapshots:/snapshots:z
+#dataw2:
+#    image: busybox
+#    volumes:
+#        - /usr/share/elasticsearch/data
 # Alternative single container setup:
 #esclient:
 #    image: eeacms/elastic:bise

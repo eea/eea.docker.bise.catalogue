@@ -204,7 +204,7 @@ def main():
         'del_all_indexes': (del_all_indexes, "Delete all indexes"),
         'del_index': (del_indexes, "Delete some indexes"),
         'del_snapshots': (del_snapshots, "Delete some snapshots"),
-        'setreplicas': (set_replicas, "Configure ES: set number of replicas"),
+        'set_replicas': (set_replicas, "Configure ES: set number of replicas"),
     }
 
     parser = argparse.ArgumentParser()
