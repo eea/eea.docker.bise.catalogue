@@ -112,10 +112,10 @@ web:
     - RAILS_ENV=production
   volumes:
     - ./config/production/config/ldap.yml:/app/config/ldap.yml
-    - ./config/production/config/database.yml:/app/config/database.yml
-    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./config/production/config/redis.yml:/app/config/redis.yml
-    - ./config/production/ssmtp.conf:/etc/ssmtp/ssmtp.conf
+    - ./config/overrides/database.yml:/app/config/database.yml
+    - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/overrides/redis.yml:/app/config/redis.yml
+    - ./config/ssmtp.conf:/etc/ssmtp/ssmtp.conf
     #- ./production.rb:/app/config/environments/production.rb
   volumes_from:
     - data
@@ -132,9 +132,10 @@ worker:
   command: bundle exec sidekiq -L log/sidekiq.log -q default -e production
   volumes:
     - ./config/production/config/ldap.yml:/app/config/ldap.yml
-    - ./config/production/config/database.yml:/app/config/database.yml
-    - ./config/production/config/elasticsearch.yml:/app/config/elasticsearch.yml
-    - ./config/production/config/redis.yml:/app/config/redis.yml
+    - ./config/overrides/database.yml:/app/config/database.yml
+    - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
+    - ./config/overrides/redis.yml:/app/config/redis.yml
+    - ./config/ssmtp.conf:/etc/ssmtp/ssmtp.conf
   volumes_from:
     - data
   links:
