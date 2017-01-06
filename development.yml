@@ -32,10 +32,11 @@ services:
     image: eeacms/bise.catalogue:latest
     # build: ./src/bise.catalogue
     environment:
-      - RAILS_ENV=development
+      - RAILS_ENV=production
+      #- RAILS_ENV=development
     command: sh -c "rm /app/tmp/pids/server.pid && rails server"
     volumes:
-      - ./src/bise.catalogue:/app
+      #- ./src/bise.catalogue:/app
       - ./config/overrides/ldap.yml:/app/config/ldap.yml
       - ./config/overrides/database.yml:/app/config/database.yml
       - ./config/overrides/elasticsearch.yml:/app/config/elasticsearch.yml
@@ -49,12 +50,14 @@ services:
       - "4000:3000"
 
   webprod:
-    image: eeacms/bise.catalogue:latest
+    # image: eeacms/bise.catalogue:latest
+    image: bise-tibi:latest
     environment:
       - RAILS_ENV=production
       - BISE_DEVEL=on
     command: sh -c "tail -f /dev/null"
     volumes:
+      - ./src/bise.catalogue:/app
       - ./var/tmp-prod:/app/tmp:rw
       - ./var/log-webprod:/app/log:rw
     volumes_from:
@@ -63,10 +66,11 @@ services:
       - "5000:3000"
 
   worker:
-    image: eeacms/bise.catalogue:latest
+    # image: eeacms/bise.catalogue:latest
+    image: bise-tibi:latest
     environment:
       - RAILS_ENV=production
-    command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e development
+    command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e production
     volumes:
       - ./var/log-worker:/app/log
     volumes_from:
