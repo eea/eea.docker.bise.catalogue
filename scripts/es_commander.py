@@ -12,8 +12,8 @@ Snapshot: {} @ {} - {}
 """
 
 
-def _get_indices(server):
-    url = 'http://{}:9200/_cluster/state'.format(server)
+def _get_indices(server, port):
+    url = 'http://{}:{}/_cluster/state'.format(server, port)
     ixs = requests.get(url).json()['metadata']['indices'].keys()
     return ixs
 
@@ -27,7 +27,7 @@ def create_snapshot_location(args):
         }
     }
     print("Creating snapshot location")
-    url = 'http://{}:9200/_snapshot/backup'.format(args.hostname)
+    url = 'http://{}:{}/_snapshot/backup'.format(args.hostname, args.port)
     req = requests.put(url, json=settings)
     res = req.json()
     if 'acknowledged' not in res:
@@ -36,8 +36,8 @@ def create_snapshot_location(args):
     assert res['acknowledged'] is True
 
 
-def _openclose_indices(server, close=True):
-    ixs = _get_indices(server)
+def _openclose_indices(server, port, close=True):
+    ixs = _get_indices(server, port)
 
     op = {
         False: '_open',
@@ -46,16 +46,17 @@ def _openclose_indices(server, close=True):
 
     for ix in ixs:
         # print("{} index {}".format(op, ix))
-        url = 'http://{}:9200/{}/{}'.format(server, ix, op)
+        url = 'http://{}:{}/{}/{}'.format(server, port, ix, op)
         req = requests.post(url)
         assert req.json()['acknowledged'] is True
 
 
 def make_snapshot(args):
     server = args.hostname
+    port = args.port
     name = args.snapshot
-    url = ('http://{}:9200/_snapshot/backup/{}?wait_for_completion=true'
-           .format(server, name))
+    url = ('http://{}:{}/_snapshot/backup/{}?wait_for_completion=true'
+           .format(server, port, name))
     res = requests.put(url).json()
     assert 'snapshot' in res
     assert res['snapshot']['state'] == 'SUCCESS'
@@ -64,11 +65,13 @@ def make_snapshot(args):
 
 def restore_snapshot(args):
     server = args.hostname
+    port = args.port
     name = args.snapshot
-    _openclose_indices(server, close=True)
-    url = 'http://{}:9200/_snapshot/backup/{}/_restore'.format(server, name)
+    _openclose_indices(server, port, close=True)
+    url = 'http://{}:{}/_snapshot/backup/{}/_restore'.format(
+        server, port, name)
     res = requests.post(url).json()
-    _openclose_indices(server, close=False)
+    _openclose_indices(server, port, close=False)
     print "Snapshot restored"
     print(res)
 
@@ -80,21 +83,23 @@ def del_all_indexes(args):
         return
 
     server = args.hostname
-    _openclose_indices(server, close=False)
-    url = 'http://{}:9200/_all/_settings'.format(server)
+    port = args.port
+    _openclose_indices(server, port, close=False)
+    url = 'http://{}:{}/_all/_settings'.format(server, port)
     all = requests.get(url).json().keys()
 
     for ix in all:
         print("Deleting {} index ".format(ix))
-        url = 'http://{}:9200/{}'.format(server, ix)
+        url = 'http://{}:{}/{}'.format(server, port, ix)
         req = requests.delete(url)
         assert req.json()['acknowledged'] is True
 
 
 def show_snapshots(args):
     server = args.hostname
+    port = args.port
     print("Showing existing snapshots:\r")
-    url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
+    url = 'http://{}:{}/_snapshot/backup/_all'.format(server, port)
     req = requests.get(url)
     resp = req.json()
     if not 'snapshots' in resp:
@@ -115,10 +120,11 @@ def show_snapshots(args):
 
 def del_snapshots(args):
     server = args.hostname
+    port = args.port
     match = args.match
-    _openclose_indices(server, close=False)
+    _openclose_indices(server, port, close=False)
 
-    matches = _get_matching_snapshots(server, match)
+    matches = _get_matching_snapshots(server, port, match)
 
     print "This will delete the following snapshots: ", ", ".join(matches)
     inp = raw_input("Are you sure you want to continue? y/n [n]")
@@ -127,13 +133,13 @@ def del_snapshots(args):
 
     for ix in matches:
         print("Deleting {} snapshot ".format(ix))
-        url = 'http://{}:9200/_snapshot/backup/{}'.format(server, ix)
+        url = 'http://{}:{}/_snapshot/backup/{}'.format(server, port, ix)
         req = requests.delete(url)
         assert req.json()['acknowledged'] is True
 
 
-def _get_matching_snapshots(server, match):
-    url = 'http://{}:9200/_snapshot/backup/_all'.format(server)
+def _get_matching_snapshots(server, port, match):
+    url = 'http://{}:{}/_snapshot/backup/_all'.format(server, port)
     req = requests.get(url)
     resp = req.json()
     snaps = resp['snapshots']
@@ -141,8 +147,8 @@ def _get_matching_snapshots(server, match):
     return all
 
 
-def _get_matching_indexes(server, match=""):
-    url = 'http://{}:9200/_all/_settings'.format(server)
+def _get_matching_indexes(server, port, match=""):
+    url = 'http://{}:{}/_all/_settings'.format(server, port)
     all = requests.get(url).json().keys()
 
     matches = []
@@ -159,10 +165,11 @@ def _get_matching_indexes(server, match=""):
 
 def del_indexes(args):
     server = args.hostname
+    port = args.port
     match = args.match
-    _openclose_indices(server, close=False)
+    _openclose_indices(server, port, close=False)
 
-    matches = _get_matching_indexes(server, match)
+    matches = _get_matching_indexes(server, port, match)
 
     print "This will delete the following indexes: ", ", ".join(matches)
     inp = raw_input("Are you sure you want to continue? y/n [n]")
@@ -171,13 +178,14 @@ def del_indexes(args):
 
     for ix in matches:
         print("Deleting {} index ".format(ix))
-        url = 'http://{}:9200/{}'.format(server, ix)
+        url = 'http://{}:{}/{}'.format(server, port, ix)
         req = requests.delete(url)
         assert req.json()['acknowledged'] is True
 
 
 def set_replicas(args):
     server = args.hostname
+    port = args.port
     match = args.match
 
     if not args.replicas.isdigit():
@@ -185,12 +193,12 @@ def set_replicas(args):
         sys.exit(1)
 
     replicas = int(args.replicas)
-    _openclose_indices(server, close=False)
-    matches = _get_matching_indexes(server, match)
+    _openclose_indices(server, port, close=False)
+    matches = _get_matching_indexes(server, port, match)
 
     settings = {"index": {"number_of_replicas": replicas}}
     for ix in matches:
-        url = 'http://{}:9200/{}/_settings'.format(server, ix)
+        url = 'http://{}:{}/{}/_settings'.format(server, port, ix)
         req = requests.put(url, json=settings)
         assert req.json()['acknowledged'] is True
 
@@ -208,8 +216,9 @@ def main():
     }
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("hostname",
-                        help="Server hostname")
+    parser.add_argument("hostname", help="Server hostname")
+    parser.add_argument("--port", help="Server port", default="9200")
+
     # TODO: better formatting of help
     parser.add_argument(
         "command",
