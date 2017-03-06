@@ -70,6 +70,7 @@ def restore_snapshot(args):
     name = args.snapshot
     if not name:
         print("Please provide a snapshot name to restore")
+        return
     _openclose_indices(server, port, close=True)
     url = 'http://{}:{}/_snapshot/backup/{}/_restore'.format(
         server, port, name)
