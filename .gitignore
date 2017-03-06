@@ -1,3 +1,6 @@
 bise-catalogue/config/ldap.yml
 config/production/config/ldap.yml
-
+*~
+var/
+snapshots/
+.secret

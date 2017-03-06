@@ -34,7 +34,8 @@ services:
     environment:
       - RAILS_ENV=production
       #- RAILS_ENV=development
-    command: sh -c "rm /app/tmp/pids/server.pid && rails server"
+    # command: sh -c "rm /app/tmp/pids/server.pid && rails server"
+    command: sh -c "rails server"
     volumes:
       #- ./src/bise.catalogue:/app
       - ./config/overrides/ldap.yml:/app/config/ldap.yml
@@ -50,8 +51,8 @@ services:
       - "4000:3000"
 
   webprod:
-    # image: eeacms/bise.catalogue:latest
-    image: bise-tibi:latest
+    image: eeacms/bise.catalogue:latest
+    # image: bise-tibi:latest
     environment:
       - RAILS_ENV=production
       - BISE_DEVEL=on
@@ -66,8 +67,8 @@ services:
       - "5000:3000"
 
   worker:
-    # image: eeacms/bise.catalogue:latest
-    image: bise-tibi:latest
+    image: eeacms/bise.catalogue:latest
+    # image: bise-tibi:latest
     environment:
       - RAILS_ENV=production
     command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e production
