@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from __future__ import print_function
 import argparse
 import requests
 import sys
@@ -31,7 +32,7 @@ def create_snapshot_location(args):
     req = requests.put(url, json=settings)
     res = req.json()
     if 'acknowledged' not in res:
-        print res
+        print(res)
         sys.exit(1)
     assert res['acknowledged'] is True
 
@@ -60,33 +61,35 @@ def make_snapshot(args):
     res = requests.put(url).json()
     assert 'snapshot' in res
     assert res['snapshot']['state'] == 'SUCCESS'
-    print "Snapshot created"
+    print("Snapshot created")
 
 
 def restore_snapshot(args):
     server = args.hostname
     port = args.port
     name = args.snapshot
+    if not name:
+        print("Please provide a snapshot name to restore")
     _openclose_indices(server, port, close=True)
     url = 'http://{}:{}/_snapshot/backup/{}/_restore'.format(
         server, port, name)
     res = requests.post(url).json()
     _openclose_indices(server, port, close=False)
-    print "Snapshot restored"
+    print("Snapshot restored")
     print(res)
 
 
 def del_all_indexes(args):
-    print "This will delete the following indexes: ", ", ".join(matches)
-    inp = raw_input("Are you sure you want to continue? y/n [n]")
-    if inp.lower() != 'y':
-        return
-
     server = args.hostname
     port = args.port
     _openclose_indices(server, port, close=False)
     url = 'http://{}:{}/_all/_settings'.format(server, port)
     all = requests.get(url).json().keys()
+
+    print("This will delete the following indexes: ", ", ".join(all))
+    inp = raw_input("Are you sure you want to continue? y/n [n]")
+    if inp.lower() != 'y':
+        return
 
     for ix in all:
         print("Deleting {} index ".format(ix))
@@ -98,13 +101,15 @@ def del_all_indexes(args):
 def show_snapshots(args):
     server = args.hostname
     port = args.port
+
     print("Showing existing snapshots:\r")
     url = 'http://{}:{}/_snapshot/backup/_all'.format(server, port)
     req = requests.get(url)
     resp = req.json()
-    if not 'snapshots' in resp:
-        print "No snapshots. "
-        print "Probably need to run <es_commander ... init> first?"
+
+    if 'snapshots' not in resp:
+        print("No snapshots. ")
+        print("Probably need to run <es_commander ... init> first?")
         sys.exit(1)
     snaps = resp['snapshots']
     for sn in snaps:
@@ -126,7 +131,7 @@ def del_snapshots(args):
 
     matches = _get_matching_snapshots(server, port, match)
 
-    print "This will delete the following snapshots: ", ", ".join(matches)
+    print("This will delete the following snapshots: ", ", ".join(matches))
     inp = raw_input("Are you sure you want to continue? y/n [n]")
     if inp.lower() != 'y':
         return
@@ -157,7 +162,7 @@ def _get_matching_indexes(server, port, match=""):
             matches.append(ix)
 
     if not matches:
-        print "No matches"
+        print("No matches")
         return []
 
     return matches
@@ -171,7 +176,7 @@ def del_indexes(args):
 
     matches = _get_matching_indexes(server, port, match)
 
-    print "This will delete the following indexes: ", ", ".join(matches)
+    print("This will delete the following indexes: ", ", ".join(matches))
     inp = raw_input("Are you sure you want to continue? y/n [n]")
     if inp.lower() != 'y':
         return
@@ -189,7 +194,7 @@ def set_replicas(args):
     match = args.match
 
     if not args.replicas.isdigit():
-        print "Please set --replicas to a valid number"
+        print("Please set --replicas to a valid number")
         sys.exit(1)
 
     replicas = int(args.replicas)
@@ -236,7 +241,7 @@ def main():
     args = parser.parse_args()
 
     def fallback(*args):
-        print "Not a command"
+        print("Not a command")
         return sys.exit(1)
 
     cmd = args.command
