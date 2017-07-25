@@ -73,6 +73,8 @@ services:
       - RAILS_ENV=production
     command: bundle exec sidekiq -L /app/log/sidekiq.log -q default -e production
     volumes:
+      - ./src/bise.catalogue:/app
+      - ./var/tmp-prod:/app/tmp:rw
       - ./var/log-worker:/app/log
     volumes_from:
       - web
