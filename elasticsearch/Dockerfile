@@ -13,4 +13,5 @@ RUN plugin -install elasticsearch/elasticsearch-mapper-attachments/2.4.3
 RUN plugin -install mobz/elasticsearch-head
 
 RUN echo 'cluster.name: "Catalogue Cluster"' >> /usr/share/elasticsearch/config/elasticsearch.yml
+RUN mkdir -p /snapshots
 RUN echo 'repo.path: ["/snapshots"]' >> /usr/share/elasticsearch/config/elasticsearch.yml

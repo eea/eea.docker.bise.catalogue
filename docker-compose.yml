@@ -1,9 +1,17 @@
 version: "2"
 
 services:
+
+  # NGINX frontend
+  frontend:
+    image: eeacms/bise.catalogue:frontend-
+    links:
+      - web
+    volumes:
+      uploads-data:/app/public
+
   esclient:
-    # image: eeacms/elastic:bise
-    build: elasticsearch
+    image: eeacms/bise.catalogue:elasticsearch-
     restart: always
     command: # Single node
         - elasticsearch
@@ -13,25 +21,18 @@ services:
         - -Des.node.river=_none_
         - -Des.transport.tcp.compress=true
         - -Des.http.max_content_length=100mb
-    volumes_from:
-      - dataes
     volumes:
-      - ./snapshots:/snapshots:z
+      - elasticsearch-snapshots:/snapshots:z
     ports:
       - 19200:9200
 
-  dataes:
-    image: busybox
-    volumes:
-      - /usr/share/elasticsearch/data
-
   db:
-    build: postgres
+    image: postgres:8.4
     restart: always
     ports:
       - 15432:5432
-    volumes_from:
-      - data
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
 
   redis:
     image: redis
@@ -40,7 +41,6 @@ services:
   postfix:
     image: eeacms/postfix:eionet
     restart: always
-    env_file: .secret
 
   # The main RubyOnRails based CMS
   web:
@@ -86,19 +86,17 @@ services:
       - esclient
       - redis
 
-  # NGINX frontend
-  frontend:
-    build: frontend
-    restart: always
-    links:
-      - web
-    volumes_from:
-      - web
-      - data
-    ports:
-      - 3080:80
-      - 80:80
-
   # Data volume container
   data:
     build: data
+
+  # dataes:
+  #   image: busybox
+  #   volumes:
+  #     - /usr/share/elasticsearch/data
+
+ volumes:
+   elasticsearch-data:
+   elasticsearch-snapshots:
+   postgresql-data:
+   uploads-data:
