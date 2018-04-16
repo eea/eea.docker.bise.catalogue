@@ -9,20 +9,20 @@ authorizations: &AUTHORIZATIONS
 
 production:
   host: ldap4.eionet.europa.eu
-  port: 389
+  port: 636
   attribute: uid
   base: ou=Users,o=EIONET,l=Europe
   admin_user: uid=catalogue_app,ou=Users,o=EIONET,l=Europe
   admin_password: <%= ENV["LDAP_PRODUCTION_PASSWORD"] %>
-  ssl: false
+  ssl: true
   <<: *AUTHORIZATIONS
 
 development:
   host: ldap4.eionet.europa.eu
-  port: 389
+  port: 636
   attribute: uid
   base: ou=Users,o=EIONET,l=Europe
   admin_user: uid=catalogue_app,ou=Users,o=EIONET,l=Europe
   admin_password: <%= ENV["LDAP_PRODUCTION_PASSWORD"] %>
-  ssl: false
+  ssl: true
   <<: *AUTHORIZATIONS
